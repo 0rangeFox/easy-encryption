@@ -66,7 +66,7 @@ std::string Base64::encodeFromFile(const std::string &inFileName) {
     while (in.good())
         encodedBytes.push_back((char) in.get());
 
-    encodedBytes.pop_back();
+    encodedBytes.erase(encodedBytes.size() - 1); // Equivalent to pop_back
     in.close();
 
     return Base64::encode(encodedBytes);

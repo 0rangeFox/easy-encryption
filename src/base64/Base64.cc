@@ -1,14 +1,22 @@
+#include <fstream>
 #include "Base64.h"
 
 using namespace easy::encryption;
 
-std::string Base64::encode(const std::string &in) {
-    unsigned long long int inStringLen = in.size();
+int Base64::index(char c) {
+    for (int i = 0; i < BASE64_AVAILABLE_CHARS_SIZE; ++i)
+        if (BASE64_AVAILABLE_CHARS[i] == c)
+            return i;
+    return -1;
+}
+
+std::string Base64::encode(const std::string &data) {
+    unsigned long long int inStringLen = data.size();
     int valA = 0, valB = -6;
     std::string out;
 
     for (int i = 0; i < inStringLen; i++) {
-        valA = (valA << 8) + in[i];
+        valA = (valA << 8) + data[i];
         valB += 8;
 
         while (valB >= 0) {
@@ -26,21 +34,16 @@ std::string Base64::encode(const std::string &in) {
     return out;
 }
 
-std::string Base64::decode(const std::string &in) {
-    unsigned long long int inStringLen = in.size();
-    std::vector<int> T(256, -1);
+std::string Base64::decode(const std::string &data) {
+    unsigned long long int inStringLen = data.size();
     std::string out;
 
-    int i;
-    for (i = 0; i < BASE64_AVAILABLE_CHARS_SIZE; i++)
-        T[BASE64_AVAILABLE_CHARS[i]] = i;
-
     int valA = 0, valB = -8;
-    for (i = 0; i < inStringLen; i++) {
-        if (T[in[i]] == -1)
-            break;
+    for (int i = 0; i < inStringLen; i++) {
+        int charIndex = index(data[i]);
+        if (charIndex < 0) break;
 
-        valA = (valA << 6) + T[in[i]];
+        valA = (valA << 6) + charIndex;
         valB += 6;
 
         if (valB >= 0) {
@@ -50,4 +53,35 @@ std::string Base64::decode(const std::string &in) {
     }
 
     return out;
+}
+
+std::string Base64::encodeFromFile(const std::string &inFileName) {
+    std::ifstream in;
+    in.open(inFileName.c_str(), std::ios::binary);
+
+    if (!in.good())
+        throw std::invalid_argument(std::string("can't open file ") + inFileName);
+
+    std::string encodedBytes;
+    while (in.good())
+        encodedBytes.push_back((char) in.get());
+
+    encodedBytes.pop_back();
+    in.close();
+
+    return Base64::encode(encodedBytes);
+}
+
+void Base64::decodeToFile(const std::string &outFileName, const std::string &encodedString) {
+    std::ofstream out;
+    out.open(outFileName.c_str(), std::ios::binary);
+
+    if (!out.good())
+        throw std::invalid_argument(std::string("can't open file ") + outFileName);
+
+    std::string decodedString = Base64::decode(encodedString);
+    for (unsigned int i = 0; i < decodedString.size(); ++i)
+        out.put(decodedString[i]);
+
+    out.close();
 }

@@ -4,19 +4,19 @@
 using namespace easy::encryption;
 
 int main() {
-	// Vigenere encoding
     std::string msg = "HELLO WORLD";
     std::string key = "THISISALONGPRIVATEKEY";
 
     std::string encryptedMsg = Vigenere::encrypt(msg, key);
-    std::string newKey = Vigenere::extend_key(msg, key);
-    std::string decryptedMsg = Vigenere::decrypt(encryptedMsg, newKey);
+    std::string decryptedMsg = Vigenere::decrypt(encryptedMsg, key);
 
- 	std::cout << "Original Message : " << msg << std::endl;
- 	std::cout << "Key              : " << key << std::endl;
- 	std::cout << "New Generated Key: " <<  newKey << std::endl;
- 	std::cout << "Enc Vigenere Msg : " << encryptedMsg << std::endl;
- 	std::cout << "Dec Vigenere Msg : " << decryptedMsg << std::endl;
- 
+    std::cout << "Vigenere =================================" << std::endl
+              << "Key: " << key << std::endl
+              << "Original Message: " << msg << std::endl
+              << "Encrypted Message: " << encryptedMsg << std::endl
+              << "Decrypted Message: " << decryptedMsg << std::endl
+              << "Is message identical: " << (msg == decryptedMsg ? "True" : "False") << std::endl
+              << "==========================================" << std::endl;
+
     return 0;
 }
